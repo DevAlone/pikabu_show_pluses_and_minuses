@@ -1,0 +1,31 @@
+{
+  "manifest_version": 2,
+  "name": "pikabu_show_pluses_and_minuses",
+  "version": "0.1",
+  "homepage_url": "https://github.com/DevAlone/pikabu_show_pluses_and_minuses",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "{b5503e8b-13b7-4c95-8ca3-bbe58f00ecc8}",
+      "strict_min_version": "42.0"
+    }
+  },
+  "permissions": [
+    "https://*.pikabu.ru/*",
+    "https://pikabu.ru/*"
+  ],
+  "description": "Shows minuses and pluses on each comment without hovering over rating element",
+  "content_scripts": [
+    {
+      "run_at": "document_end",
+      "matches": [
+        "*://*.pikabu.ru/*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "css": [
+        "content.css"
+      ]
+    }
+  ]
+}
