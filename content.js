@@ -1,8 +1,8 @@
 const processNode = (node) => {
     const label = node.getAttribute("aria-label");
     if (label === null
-            || label.toLowerCase().startsWith("рейтинг скрыт")
-            || label.toLowerCase().startsWith("нет данных")) {
+        || label.toLowerCase().startsWith("рейтинг скрыт")
+        || label.toLowerCase().startsWith("нет данных")) {
         // some comments like "the comment of a day" don't have info about pluses and minuses
         // also skip hidden rating
         return;
@@ -13,7 +13,6 @@ const processNode = (node) => {
         number_of_minuses = Number(number_of_minuses);
         number_of_pluses = Number(number_of_pluses);
         let rating = Number(node.textContent.match(/\-?\d+/)[0]);
-        console.log(number_of_pluses, number_of_minuses, rating);
 
         if (number_of_pluses - number_of_minuses != rating || number_of_minuses > 0 && number_of_pluses > 0) {
             let items = [
@@ -26,16 +25,27 @@ const processNode = (node) => {
             ];
             node.innerHTML = items.join("");
         }
-    } catch(err) {
+    } catch (err) {
         console.log("error during parsing comment's rating");
         console.log(err);
     }
 };
 
-const processNodes = (baseNode) => {
+const processAddedNodes = (baseNode) => {
     if ("querySelectorAll" in baseNode) {
         for (let node of baseNode.querySelectorAll(".comment__rating-count")) {
             processNode(node);
+            // subscribe to changes
+            const changeOfContentObserver = new MutationObserver((mutations) => {
+                for (let mutation of mutations) {
+                    processNode(mutation.target);
+                }
+            });
+            changeOfContentObserver.observe(node, {
+                attributes: true,
+                childList: false,
+                characterData: true,
+            });
         }
     }
 };
@@ -43,7 +53,7 @@ const processNodes = (baseNode) => {
 const callback = (mutations) => {
     for (let mutation of mutations) {
         for (let base of mutation.addedNodes) {
-            processNodes(base);
+            processAddedNodes(base);
         }
     }
 };
@@ -51,7 +61,7 @@ const callback = (mutations) => {
 const observer = new MutationObserver(callback);
 
 const main = () => {
-    processNodes(document);
+    processAddedNodes(document);
 
     observer.observe(document, {
         childList: true,
